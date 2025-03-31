@@ -116,6 +116,6 @@ The backend will be available at [http://localhost:5000](http://localhost:5000).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Bird Organization's License - see the [BIRD_ORGANIZATION_VERY_REAL_LICENSE](BIRD_ORGANIZATION_VERY_REAL_LICENSE) file for details.
 
 
