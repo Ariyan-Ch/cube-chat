@@ -67,8 +67,8 @@ def load_documents_and_index(chunkSize = 1000, chunkOvLap=200):
 vectorstore = load_documents_and_index()
 
 #proper template
-prompt_template = """Use the following pieces of context to answer the question. Follow these rules:
-1. Be concise and factual.
+prompt_template = """Use th below context to answer questions. Follow these rules:
+1. Be concise.
 2. If you don't have enough information, say "I don't know" without guessing.
 3. Include only the sources that directly contribute to your answer.
 Context:
@@ -82,11 +82,15 @@ PROMPT = PromptTemplate(
 )
 
 # Set up the RetrievalQA chain
-retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
 #chain
 qa_chain = RetrievalQA.from_chain_type(
     # language model pipeline
-    llm=HuggingFacePipeline(pipeline=pipeline('text2text-generation', model= TEXTGEN_MODEL_NAME)),
+    llm=HuggingFacePipeline(pipeline=pipeline(
+        'text2text-generation', 
+        model= TEXTGEN_MODEL_NAME,
+        max_length=1024
+        )),
     chain_type="stuff",
     retriever=retriever,
     return_source_documents=True,
