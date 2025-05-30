@@ -162,7 +162,12 @@ def upload_pdf():
     except Exception as e:
         return jsonify({"error": f"Error updating index: {str(e)}"}), 500
 
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({"message": f"UP AND RUNNING."}), 200
+
 
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000)
+    os.makedirs(FAISS_FOLDER_NAME, exist_ok=True)
+    socketio.run(app,host='0.0.0.0', port=5000,allow_unsafe_werkzeug=True)

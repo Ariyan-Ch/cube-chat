@@ -1,0 +1,25 @@
+# Ignore Python environment folders
+rag_env/
+venv/
+.env/
+
+# Bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs and databases
+*.log
+*.db
+
+# Dotfiles
+.env
+*.env
+
+# Vector store and temp files
+*.faiss
+*.pdf
+*.zip
+tmp/
+

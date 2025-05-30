@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: my-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      # persist HF cache so that stopping/recreating the container
+      # doesn’t re-download models
+      - hf-cache:/root/.cache/huggingface
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: my-frontend
+    ports:
+      - "8080:8080"
+    environment:
+      # point your React app at the backend service
+      - REACT_APP_BACKEND_URL=http://backend:5000
+
+volumes:
+  hf-cache:
+
