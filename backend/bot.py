@@ -3,7 +3,9 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS  
-
+import google.generativeai as genai
+from langchain.llms.base import LLM
+from typing import Optional, List
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings, HuggingFacePipeline
@@ -26,7 +28,23 @@ EMBEDDINGS_MODEL_NAME = os.getenv('EMBEDDINGS_MODEL_NAME')
 TEXTGEN_MODEL_NAME = os.getenv('TEXTGEN_MODEL_NAME')
 FAISS_FOLDER_NAME = os.getenv('FAISS_FOLDER_NAME')
 PDF_FOLDER_NAME = os.getenv('PDF_FOLDER_NAME')
+API_MODEL=os.getenv('API_MODEL') # if 'true' then use api key of gemini instead of huggingface 
+API_MODEL_KEY=os.getenv('API_MODEL_KEY')
+API_MODEL_NAME=os.getenv('API_MODEL_NAME')
 
+class GeminiLLM(LLM):
+    model: str
+    api_key: str
+
+    def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
+        genai.configure(api_key=self.api_key)
+        model = genai.GenerativeModel(self.model)
+        response = model.generate_content(prompt)
+        return response.text
+
+    @property
+    def _llm_type(self) -> str:
+        return "gemini"
 
 # ---------- PDF processing and QA chain setup ---------------
 def load_documents_and_index(chunkSize = 1000, chunkOvLap=200):
@@ -83,14 +101,22 @@ PROMPT = PromptTemplate(
 
 # Set up the RetrievalQA chain
 retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
+
+if API_MODEL.lower() == 'true':
+    print("Using Gemini API model")
+    llm = GeminiLLM(model=API_MODEL_NAME, api_key=API_MODEL_KEY)
+else:
+    print("Using Hugging Face local model")
+    llm = HuggingFacePipeline(pipeline=pipeline(
+        'text2text-generation',
+        model=TEXTGEN_MODEL_NAME,
+        max_length=1024
+    ))
+
 #chain
 qa_chain = RetrievalQA.from_chain_type(
     # language model pipeline
-    llm=HuggingFacePipeline(pipeline=pipeline(
-        'text2text-generation', 
-        model= TEXTGEN_MODEL_NAME,
-        max_length=1024
-        )),
+    llm=llm,
     chain_type="stuff",
     retriever=retriever,
     return_source_documents=True,
