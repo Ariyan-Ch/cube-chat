@@ -57,6 +57,10 @@ Set up these variables in your own ".env" file
 - TEXTGEN_MODEL_NAME = < text generation model name >
 - FAISS_FOLDER_NAME = < folder to store faiss vectors >
 - PDF_FOLDER_NAME = < folder name to store pdfs uploaded by user >
+- API_MODEL=<anything but 'true' would shift to hg model>
+- API_MODEL_KEY=<gemini api key>
+- API_MODEL_NAME=<gemini model name. eg. gemini-2.0-flash>
+
 
 ### To run the backend locally:
 1. Navigate to the backend folder:
